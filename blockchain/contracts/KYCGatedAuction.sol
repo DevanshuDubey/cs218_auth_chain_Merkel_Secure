@@ -3,13 +3,15 @@ pragma solidity ^0.8.24;
 
 /**
  * @title KYCGatedAuction (Owner Controlled)
- * 
+ *
  * @notice Auction where only KYC-verified users can bid
  * @dev Owner has full control to end auction manually
  */
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {
+    ReentrancyGuard
+} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @notice Interface for KYC verification contract
@@ -19,7 +21,6 @@ interface IIdentityVerifier {
 }
 
 contract KYCGatedAuction is Ownable, ReentrancyGuard {
-
     /// @notice KYC verifier contract (immutable for gas efficiency)
     IIdentityVerifier public immutable verifier;
 
@@ -75,16 +76,16 @@ contract KYCGatedAuction is Ownable, ReentrancyGuard {
 
     /**
      * @notice Place a bid
-     * @dev 
+     * @dev
      * - Only KYC verified users
      * - Must send ETH greater than current highest bid
      */
-    function placeBid() 
-        external 
-        payable 
-        nonReentrant 
-        onlyVerified 
-        auctionActive 
+    function placeBid()
+        external
+        payable
+        nonReentrant
+        onlyVerified
+        auctionActive
     {
         require(msg.value > highestBid, "Bid too low");
 
@@ -132,11 +133,9 @@ contract KYCGatedAuction is Ownable, ReentrancyGuard {
      * @notice Withdraw winning bid amount
      * @param recipient Address receiving ETH
      */
-    function withdrawProceeds(address payable recipient) 
-        external 
-        onlyOwner 
-        nonReentrant 
-    {
+    function withdrawProceeds(
+        address payable recipient
+    ) external onlyOwner nonReentrant {
         require(ended, "Auction not ended");
         require(recipient != address(0), "Invalid recipient");
 
