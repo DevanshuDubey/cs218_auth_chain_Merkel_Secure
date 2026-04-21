@@ -4,30 +4,32 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 // is AccessControl to inherit openzeppelin's security
-contract identity_verifier is AccessControl {
+contract IdentityVerifier is AccessControl {
+    bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
+
     // track user's verification status
     enum Status {
-        not_registered,
-        pending,
-        verified,
-        revoked
+        NotRegistered,
+        Pending,
+        Verified,
+        Revoked
     }
 
     //store for each user
-    struct identity {
+    struct Identity {
         bytes32 document_hash;
         Status status;
         address verified_by;
         uint256 timestamp; //when verified
     }
 
-    mapping(address => identity) public users;
+    mapping(address => Identity) public identities;
 
     //events which will be listened by frontend
     // indexed allowsn fronterd to search blockchain
     //(eg, all IdentityRegistered events but for my wallet address)
     event IdentityRegistered(address indexed user, bytes32 document_hash);
-    event IdentityVerified(address indexed user, adress indexed verifier);
+    event IdentityVerified(address indexed user, address indexed verifier);
     event IdentityRevoked(address indexed user, address indexed revoker);
 
     constructor() {
@@ -41,19 +43,46 @@ contract identity_verifier is AccessControl {
 
         //ensure user not already registered or pending
         require(
-            identities[msg.sender].status == Status.not_registered ||
-                identities[msg.sender].status == Status.revoked,
+            identities[msg.sender].status == Status.NotRegistered ||
+                identities[msg.sender].status == Status.Revoked,
             "Identity already registered or pending"
         );
 
         // update the mapping for the person calling func
         identities[msg.sender] = Identity({
             document_hash: _document_hash,
-            status: Status.pending,
+            status: Status.Pending,
             verified_by: address(0), // adress(0) -> nobody
             timestamp: 0
         });
 
         emit IdentityRegistered(msg.sender, _document_hash);
+    }
+
+    function verifyIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
+        require(_user != address(0), "Invalid user address");
+        require(
+            identities[_user].status == Status.Pending,
+            "User is not in Pending status"
+        );
+        identities[_user].status = Status.Verified;
+        identities[_user].verified_by = msg.sender;
+        identities[_user].timestamp = block.timestamp;
+        emit IdentityVerified(_user, msg.sender);
+    }
+
+    function revokeIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
+        require(_user != address(0), "Invalid user address");
+        require(
+            identities[_user].status == Status.Verified,
+            "Can only revoke Verified users"
+        );
+        identities[_user].status = Status.Revoked;
+        emit IdentityRevoked(_user, msg.sender);
+    }
+
+    //view since we are only reading data so zero gas
+    function isVerified(address _user) external view returns (bool) {
+        return identities[_user].status == Status.Verified;
     }
 }
