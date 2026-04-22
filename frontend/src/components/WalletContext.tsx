@@ -15,25 +15,35 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<"ADMIN" | "VERIFIER" | "USER" | null>(null);
   const [signer, setSigner] = useState<any>(null);
 
-  const IDENTITY_ADDR = "YOUR_DEPLOYED_IDENTITY_CONTRACT_ADDRESS";
+  const IDENTITY_ADDR = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
   const checkRoles = async (userAddr: string, currentSigner: any) => {
-    // const contract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, currentSigner);
-    
-    // // Keccak256 hashes for roles (Match these with your Solidity constants)
-    // const ADMIN_ROLE = ethers.id("DEFAULT_ADMIN_ROLE"); 
-    // const VERIFIER_ROLE = ethers.id("VERIFIER_ROLE");
+    try {
+      const contract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, currentSigner);
+      
+      // OpenZeppelin's DEFAULT_ADMIN_ROLE is explicitly bytes32(0), NOT the keccak256 hash of a string!
+      const ADMIN_ROLE = ethers.ZeroHash; 
+      const VERIFIER_ROLE = ethers.id("VERIFIER_ROLE");
 
-    // const isAdmin = await contract.hasRole(ADMIN_ROLE, userAddr);
-    // const isVerifier = await contract.hasRole(VERIFIER_ROLE, userAddr);
+      const isAdmin = await contract.hasRole(ADMIN_ROLE, userAddr);
+      const isVerifier = await contract.hasRole(VERIFIER_ROLE, userAddr);
 
-    // if (isAdmin) setRole("ADMIN");
-    // else if (isVerifier) setRole("VERIFIER");
-    // else setRole("USER");
+      if (isAdmin) setRole("ADMIN");
+      else if (isVerifier) setRole("VERIFIER");
+      else setRole("USER");
+    } catch (error) {
+      console.error("Error checking roles (is the contract deployed to this network?):", error);
+      setRole("USER"); // Default to USER on failure so app doesn't break
+    }
   };
 
   const connectWallet = async () => {
-    if (window.ethereum) {
+    if (!window.ethereum) {
+      alert("MetaMask is not installed! Please install it to use this app.");
+      return;
+    }
+    
+    try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
       const currentSigner = await provider.getSigner();
@@ -41,6 +51,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       setAccount(accounts[0]);
       setSigner(currentSigner);
       await checkRoles(accounts[0], currentSigner);
+    } catch (error: any) {
+      console.error("Wallet connection failed:", error);
+      alert("Failed to connect wallet: " + (error.reason || error.message || "Unknown error"));
     }
   };
 

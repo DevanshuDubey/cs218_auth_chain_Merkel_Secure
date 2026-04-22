@@ -3,14 +3,23 @@ import { ethers } from "ethers";
 import { useWallet } from "./WalletContext.tsx";
 import IdentityABI from "../abis/IdentityVerifier.json";
 
-const IDENTITY_ADDR = "0x308A11442970E516aA3373f5254e985718363aB0";
+const IDENTITY_ADDR = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
 const AdminDashboard = () => {
   const { signer } = useWallet();
   const [newVerifier, setNewVerifier] = useState("");
 
   const addVerifier = async () => {
-    // contract logic
+    try {
+      const contract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
+      const VERIFIER_ROLE = ethers.id("VERIFIER_ROLE"); 
+      const tx = await contract.grantRole(VERIFIER_ROLE, newVerifier);
+      await tx.wait();
+      alert("New Verifier Added Successfully!");
+      setNewVerifier("");
+    } catch (err: any) {
+      alert("Admin Error: " + (err.reason || err.message));
+    }
   };
 
   return (

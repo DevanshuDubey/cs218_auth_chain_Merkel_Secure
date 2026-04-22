@@ -4,8 +4,8 @@ import { useWallet } from "./WalletContext.tsx";
 import IdentityABI from "../abis/IdentityVerifier.json";
 import AuctionABI from "../abis/KYCGatedAuction.json";
 
-const IDENTITY_ADDR = "0x308A11442970E516aA3373f5254e985718363aB0";
-const AUCTION_ADDR = "0x72bB1450814F535D3e241998485A032D2E0f551A";
+const IDENTITY_ADDR = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+const AUCTION_ADDR = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
 
 const UserDashboard = () => {
   const { signer, account } = useWallet();
@@ -20,7 +20,29 @@ const UserDashboard = () => {
   });
 
   const fetchData = async () => {
-    // Contract code commented out to match previous state
+    try {
+      const identityContract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
+      const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+
+      // Check identity verification status
+      const isVerified = await identityContract.isVerified(account);
+
+      // Fetch auction data only if verified
+      let highestBid = "0";
+      let highestBidder = "No bids yet";
+      if (isVerified) {
+        highestBid = (await auctionContract.highestBid()).toString();
+        highestBidder = await auctionContract.highestBidder();
+      }
+
+      setAuctionData({
+        isVerified,
+        highestBid: highestBid,
+        highestBidder
+      });
+    } catch (error: any) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   useEffect(() => {
@@ -28,11 +50,49 @@ const UserDashboard = () => {
   }, [signer, account]);
 
   const register = async () => {
-    // Contract logic preserved as comments
+    try {
+      setLoading(true);
+      const identityContract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
+
+      const tx = await identityContract.registerIdentity(docHash);
+      await tx.wait();
+      
+      alert("Identity registered successfully! A verifier will review your documents.");
+      window.location.reload(); // Refresh to update verification status
+    } catch (error: any) {
+      console.error("Error registering identity:", error);
+      alert("Registration failed. Ensure your document hash is valid and you have not registered before.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const placeBid = async () => {
-    // Contract logic preserved as comments
+    try {
+      setLoading(true);
+      const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+
+      const weiAmount = ethers.parseEther(bidAmount);
+      const tx = await auctionContract.placeBid({ value: weiAmount });
+      await tx.wait();
+      
+      alert("Bid placed successfully!");
+      window.location.reload(); // Refresh to update bid status
+    } catch (error: any) {
+      console.error("Error placing bid:", error);
+      
+      let errorMessage = "Bid failed.";
+      if (error.message && error.message.includes("Identity not verified")) {
+        errorMessage = "Identity verification is required to bid.";
+      } else if (error.message.includes("Invalid bid amount")) {
+        errorMessage = "Bid must be higher than the current highest bid.";
+      } else if (error.message.includes("Auction ended")) {
+        errorMessage = "Auction has already ended.";
+      }
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
