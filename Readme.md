@@ -106,7 +106,7 @@ npm run dev
 ## 📖 Standard Operating Workflow
 
 ### 1. User Registration
-1. User connects MetaMask (e.g., Account #2).
+1. User connects MetaMask (e.g., Account #1).
 2. User uploads an identity document (Image/PDF) via the **User Dashboard**.
 3. Frontend calculates the file's `keccak256` hash and sends the raw file to the backend.
 4. Backend encrypts the file and saves it to MongoDB (`status: Pending`).
@@ -118,7 +118,7 @@ npm run dev
 3. Admin inputs the wallet address of an agent (e.g., Account #1) and clicks "Grant Role" to authorize them as a Verifier.
 
 ### 3. Verification Process
-1. Verifier connects MetaMask (Account #1).
+1. Verifier connects MetaMask (Account #19).
 2. Verifier navigates to the **Verifier Portal**, which fetches a list of pending requests from the database.
 3. Verifier clicks a pending address. The backend decrypts the document and sends it to the UI for visual inspection.
 4. Verifier clicks **"Verify Hash"**. The UI calculates the hash of the downloaded image and compares it to the hash stored on the blockchain.
