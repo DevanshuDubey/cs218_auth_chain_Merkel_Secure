@@ -85,4 +85,24 @@ contract IdentityVerifier is AccessControl {
     function isVerified(address _user) external view returns (bool) {
         return identities[_user].status == Status.Verified;
     }
+
+    function addVerifier(address _verifier) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_verifier != address(0), "Invalid verifier address");
+        grantRole(VERIFIER_ROLE, _verifier);
+    }
+
+    function removeVerifier(address _verifier) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_verifier != address(0), "Invalid verifier address");
+        revokeRole(VERIFIER_ROLE, _verifier);
+    }
+
+    function getIdentityRecord(address _user) external view returns (
+        bytes32 documentHash,
+        Status status,
+        address verifiedBy,
+        uint256 timestamp
+    ) {
+        Identity memory id = identities[_user];
+        return (id.document_hash, id.status, id.verified_by, id.timestamp);
+    }
 }

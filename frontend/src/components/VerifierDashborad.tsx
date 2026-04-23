@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { useWallet } from "./WalletContext.tsx";
 import IdentityABI from "../abis/IdentityVerifier.json";
 
-const IDENTITY_ADDR = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+const IDENTITY_ADDR = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 const BACKEND_URL = "http://localhost:5001";
 
 const VerifierDashboard = () => {

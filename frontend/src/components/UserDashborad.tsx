@@ -4,8 +4,8 @@ import { useWallet } from "./WalletContext.tsx";
 import IdentityABI from "../abis/IdentityVerifier.json";
 import AuctionABI from "../abis/KYCGatedAuction.json";
 
-const IDENTITY_ADDR = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
-const AUCTION_ADDR = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
+const IDENTITY_ADDR = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+const AUCTION_ADDR = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
 const BACKEND_URL = "http://localhost:5001";
 
 const UserDashboard = () => {

@@ -15,7 +15,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<"ADMIN" | "VERIFIER" | "USER" | null>(null);
   const [signer, setSigner] = useState<any>(null);
 
-  const IDENTITY_ADDR = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+  const IDENTITY_ADDR = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
   const checkRoles = async (userAddr: string, currentSigner: any) => {
     try {

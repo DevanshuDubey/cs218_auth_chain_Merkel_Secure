@@ -8,6 +8,10 @@ const connectDB = async () => {
         }
         await mongoose.connect(uri);
         console.log('MongoDB connected successfully');
+        
+        // Clear all data to start fresh
+        await mongoose.connection.db.dropDatabase();
+        console.log('Database dropped successfully - starting fresh!');
     } catch (error) {
         console.error('MongoDB connection error:', error);
         process.exit(1);
