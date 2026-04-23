@@ -13,7 +13,7 @@ const userDocumentSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Verified', 'Revoked'],
+        enum: ['Pending', 'Verified', 'Revoked', 'Rejected'],
         default: 'Pending',
     },
     uploadedAt: {

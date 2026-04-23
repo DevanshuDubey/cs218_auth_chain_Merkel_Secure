@@ -9,28 +9,44 @@ const AdminDashboard = () => {
   const { signer } = useWallet();
   const [newVerifier, setNewVerifier] = useState("");
   const [verifierToRemove, setVerifierToRemove] = useState("");
+  const [loadingAdd, setLoadingAdd] = useState(false);
+  const [loadingRemove, setLoadingRemove] = useState(false);
 
   const addVerifier = async () => {
     try {
+      setLoadingAdd(true);
       const contract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
       const tx = await contract.addVerifier(newVerifier);
       await tx.wait();
       alert("New Verifier Added Successfully!");
       setNewVerifier("");
     } catch (err: any) {
-      alert("Admin Error: " + (err.reason || err.message));
+      if (err.code === 'ACTION_REJECTED' || (err.message && err.message.toLowerCase().includes("user rejected"))) {
+        alert("Transaction cancelled by user.");
+      } else {
+        alert("Admin Error: " + (err.reason || err.message));
+      }
+    } finally {
+      setLoadingAdd(false);
     }
   };
 
   const removeVerifier = async () => {
     try {
+      setLoadingRemove(true);
       const contract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
       const tx = await contract.removeVerifier(verifierToRemove);
       await tx.wait();
       alert("Verifier Removed Successfully!");
       setVerifierToRemove("");
     } catch (err: any) {
-      alert("Admin Error: " + (err.reason || err.message));
+      if (err.code === 'ACTION_REJECTED' || (err.message && err.message.toLowerCase().includes("user rejected"))) {
+        alert("Transaction cancelled by user.");
+      } else {
+        alert("Admin Error: " + (err.reason || err.message));
+      }
+    } finally {
+      setLoadingRemove(false);
     }
   };
 
@@ -44,40 +60,56 @@ const AdminDashboard = () => {
       <div className="glass-card mb-4">
         <h3>Authorize New Verifier</h3>
         <p className="mb-4">Grant the VERIFIER_ROLE to a trusted address. They will gain the ability to approve user KYC requests.</p>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <input 
-            className="input-field"
-            placeholder="Verifier Wallet Address (0x...)" 
-            value={newVerifier}
-            onChange={(e) => setNewVerifier(e.target.value)} 
-          />
-          <button 
-            className="btn-primary" 
-            onClick={addVerifier}
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            Grant Role
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <input 
+              className="input-field"
+              placeholder="Verifier Wallet Address (0x...)" 
+              value={newVerifier}
+              onChange={(e) => setNewVerifier(e.target.value)} 
+            />
+            <button 
+              className="btn-primary" 
+              onClick={addVerifier}
+              disabled={loadingAdd || !newVerifier}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              {loadingAdd ? "Processing..." : "Grant Role"}
+            </button>
+          </div>
+          {loadingAdd && (
+            <div className="processing-bar-container" style={{ width: '100%' }}>
+              <div className="processing-bar"></div>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="glass-card">
         <h3>Revoke Verifier Role</h3>
         <p className="mb-4">Remove the VERIFIER_ROLE from an address. They will no longer be able to approve user KYC requests.</p>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <input 
-            className="input-field"
-            placeholder="Verifier Wallet Address (0x...)" 
-            value={verifierToRemove}
-            onChange={(e) => setVerifierToRemove(e.target.value)} 
-          />
-          <button 
-            className="btn-primary" 
-            onClick={removeVerifier}
-            style={{ whiteSpace: 'nowrap', backgroundColor: '#e74c3c' }}
-          >
-            Revoke Role
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <input 
+              className="input-field"
+              placeholder="Verifier Wallet Address (0x...)" 
+              value={verifierToRemove}
+              onChange={(e) => setVerifierToRemove(e.target.value)} 
+            />
+            <button 
+              className="btn-primary" 
+              onClick={removeVerifier}
+              disabled={loadingRemove || !verifierToRemove}
+              style={{ whiteSpace: 'nowrap', backgroundColor: loadingRemove || !verifierToRemove ? 'var(--bg-surface-hover)' : '#e74c3c' }}
+            >
+              {loadingRemove ? "Processing..." : "Revoke Role"}
+            </button>
+          </div>
+          {loadingRemove && (
+            <div className="processing-bar-container" style={{ width: '100%' }}>
+              <div className="processing-bar"></div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -12,7 +12,8 @@ contract IdentityVerifier is AccessControl {
         NotRegistered,
         Pending,
         Verified,
-        Revoked
+        Revoked,
+        Rejected
     }
 
     //store for each user
@@ -31,6 +32,7 @@ contract IdentityVerifier is AccessControl {
     event IdentityRegistered(address indexed user, bytes32 document_hash);
     event IdentityVerified(address indexed user, address indexed verifier);
     event IdentityRevoked(address indexed user, address indexed revoker);
+    event IdentityRejected(address indexed user, address indexed rejecter);
 
     constructor() {
         //DEFAULT_ADMIN_ROLE from openzepp
@@ -79,6 +81,16 @@ contract IdentityVerifier is AccessControl {
         );
         identities[_user].status = Status.Revoked;
         emit IdentityRevoked(_user, msg.sender);
+    }
+
+    function rejectIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
+        require(_user != address(0), "Invalid user address");
+        require(
+            identities[_user].status == Status.Pending,
+            "Can only reject Pending users"
+        );
+        identities[_user].status = Status.Rejected;
+        emit IdentityRejected(_user, msg.sender);
     }
 
     //view since we are only reading data so zero gas

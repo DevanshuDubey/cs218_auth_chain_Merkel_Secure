@@ -66,11 +66,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
           window.ethereum.request({ method: 'eth_accounts' }).then(async () => {
              const provider = new ethers.BrowserProvider(window.ethereum);
              const s = await provider.getSigner();
+             setSigner(s);
              checkRoles(accs[0], s);
           });
         } else {
           setAccount(null);
           setRole(null);
+          setSigner(null);
         }
       });
     }

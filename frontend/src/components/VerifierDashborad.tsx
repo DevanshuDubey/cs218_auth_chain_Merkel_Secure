@@ -111,7 +111,46 @@ const VerifierDashboard = () => {
       fetchPending();
     } catch (error: any) {
       console.error(error);
-      alert("Verification failed: " + (error.reason || error.message));
+      if (error.code === 'ACTION_REJECTED' || (error.message && error.message.toLowerCase().includes("user rejected"))) {
+        alert("Transaction cancelled by user.");
+      } else {
+        alert("Verification failed: " + (error.reason || error.message));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectUser = async (addressToReject: string) => {
+    if (!addressToReject) return alert("Please select a pending request.");
+    try {
+      setLoading(true);
+
+      // 1. On-Chain Rejection
+      const identityContract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
+      const tx = await identityContract.rejectIdentity(addressToReject);
+      await tx.wait();
+
+      // 2. Database Sync
+      await fetch(`${BACKEND_URL}/api/documents/${addressToReject}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Rejected', verifierAddress: account })
+      });
+
+      alert("User request rejected successfully!");
+      if (addressToReject === selectedUser) {
+        setDocumentBase64(null);
+        setSelectedUser("");
+      }
+      fetchPending();
+    } catch (error: any) {
+      console.error(error);
+      if (error.code === 'ACTION_REJECTED' || (error.message && error.message.toLowerCase().includes("user rejected"))) {
+        alert("Transaction cancelled by user.");
+      } else {
+        alert("Rejection failed: " + (error.reason || error.message));
+      }
     } finally {
       setLoading(false);
     }
@@ -142,7 +181,11 @@ const VerifierDashboard = () => {
       fetchPending();
     } catch (error: any) {
       console.error(error);
-      alert("Revocation failed: " + (error.reason || error.message));
+      if (error.code === 'ACTION_REJECTED' || (error.message && error.message.toLowerCase().includes("user rejected"))) {
+        alert("Transaction cancelled by user.");
+      } else {
+        alert("Revocation failed: " + (error.reason || error.message));
+      }
     } finally {
       setLoading(false);
     }
@@ -234,6 +277,11 @@ const VerifierDashboard = () => {
                         {loading ? "Computing..." : "Verify Hash"}
                     </button>
                  </div>
+                 {loading && (
+                    <div className="processing-bar-container" style={{ marginBottom: '1rem' }}>
+                      <div className="processing-bar"></div>
+                    </div>
+                 )}
                  
                  {blockchainHash && (
                     <div style={{ fontFamily: 'monospace', fontSize: '0.8rem', opacity: 0.8, wordBreak: 'break-all' }}>
@@ -257,22 +305,29 @@ const VerifierDashboard = () => {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                <button 
-                  className="btn-primary" 
-                  onClick={() => revokeUser(selectedUser)} 
-                  disabled={loading}
-                  style={{ backgroundColor: 'transparent', border: '1px solid #e53e3e', color: '#e53e3e' }}
-                >
-                  Reject & Revoke
-                </button>
-                <button 
-                  className="btn-primary" 
-                  onClick={grantVerification} 
-                  disabled={loading || !hashMatched}
-                >
-                  {loading ? "Processing..." : "Grant Verification"}
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button 
+                    className="btn-primary" 
+                    onClick={() => rejectUser(selectedUser)} 
+                    disabled={loading}
+                    style={{ backgroundColor: 'transparent', border: '1px solid #e53e3e', color: '#e53e3e' }}
+                  >
+                    Reject Request
+                  </button>
+                  <button 
+                    className="btn-primary" 
+                    onClick={grantVerification} 
+                    disabled={loading || !hashMatched}
+                  >
+                    {loading ? "Processing..." : "Grant Verification"}
+                  </button>
+                </div>
+                {loading && (
+                  <div className="processing-bar-container" style={{ width: '100%' }}>
+                    <div className="processing-bar"></div>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -283,24 +338,31 @@ const VerifierDashboard = () => {
       <div className="glass-card" style={{ marginTop: '2rem' }}>
         <h3 style={{ color: '#e53e3e' }}>Manual Revocation</h3>
         <p className="mb-4">Enter a user's wallet address to manually revoke their verified KYC status.</p>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <input 
-            className="input-field"
-            id="revokeAddress"
-            placeholder="User Wallet Address (0x...)" 
-            style={{ flex: '1' }}
-          />
-          <button 
-            className="btn-primary" 
-            onClick={() => {
-                const val = (document.getElementById('revokeAddress') as HTMLInputElement).value;
-                revokeUser(val);
-            }} 
-            disabled={loading}
-            style={{ backgroundColor: '#e53e3e', color: 'white' }}
-          >
-            Revoke Identity
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <input 
+              className="input-field"
+              id="revokeAddress"
+              placeholder="User Wallet Address (0x...)" 
+              style={{ flex: '1' }}
+            />
+            <button 
+              className="btn-primary" 
+              onClick={() => {
+                  const val = (document.getElementById('revokeAddress') as HTMLInputElement).value;
+                  revokeUser(val);
+              }} 
+              disabled={loading}
+              style={{ backgroundColor: loading ? 'var(--bg-surface-hover)' : '#e53e3e', color: 'white' }}
+            >
+              {loading ? "Processing..." : "Revoke Identity"}
+            </button>
+          </div>
+          {loading && (
+            <div className="processing-bar-container" style={{ width: '100%' }}>
+              <div className="processing-bar"></div>
+            </div>
+          )}
         </div>
       </div>
     </div>
