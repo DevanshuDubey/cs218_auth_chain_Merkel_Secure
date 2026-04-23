@@ -33,10 +33,10 @@ A comprehensive, zero-knowledge-compliant decentralized application (dApp) for I
 
 ### 1. Backend Setup (MongoDB & Encryption)
 Navigate to the backend directory and install dependencies:
-```bash
+````bash
 cd backend
 npm install
-```
+````
 
 Create a `.env` file in the `backend` folder with the following configuration:
 ```env
