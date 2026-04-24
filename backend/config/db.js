@@ -9,14 +9,14 @@ const connectDB = async () => {
         await mongoose.connect(uri);
         console.log('MongoDB connected successfully');
 
-        /* 
+        
         // Clear all data from collections to start fresh without dropping the DB itself
         const collections = await mongoose.connection.db.collections();
         for (let collection of collections) {
             await collection.deleteMany({});
         }
         console.log('Database collections cleared successfully - starting fresh!');
-        */
+        
     } catch (error) {
         console.error('MongoDB connection error:', error);
         process.exit(1);

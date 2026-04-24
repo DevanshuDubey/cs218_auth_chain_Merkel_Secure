@@ -12,6 +12,8 @@ const AuctionPanel = () => {
   const [bidAmount, setBidAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [proceedsLoading, setProceedsLoading] = useState(false);
+  const [withdrawRecipient, setWithdrawRecipient] = useState("");
   
   const [auctionData, setAuctionData] = useState({
     highestBid: "0",
@@ -121,6 +123,31 @@ const AuctionPanel = () => {
     }
   };
 
+  const withdrawProceeds = async () => {
+    try {
+      setProceedsLoading(true);
+      const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+      
+      // Validate address
+      if (!ethers.isAddress(withdrawRecipient)) {
+        alert("Please enter a valid Ethereum address.");
+        setProceedsLoading(false);
+        return;
+      }
+
+      const tx = await auctionContract.withdrawProceeds(withdrawRecipient);
+      await tx.wait();
+      alert("Proceeds withdrawn successfully!");
+      setWithdrawRecipient("");
+      fetchData();
+    } catch (error: any) {
+      console.error("Error withdrawing proceeds:", error);
+      alert("Failed to withdraw proceeds: " + (error.reason || error.message));
+    } finally {
+      setProceedsLoading(false);
+    }
+  };
+
   return (
     <div style={{ animation: "fadeIn 0.5s ease" }}>
       <header className="mb-8">
@@ -145,7 +172,33 @@ const AuctionPanel = () => {
         {role === "ADMIN" ? (
            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
               {auctionData.ended ? (
-                 <p style={{ color: '#e53e3e', fontWeight: 'bold' }}>This auction has ended.</p>
+                 <div>
+                   <p style={{ color: '#e53e3e', fontWeight: 'bold', marginBottom: '1rem' }}>This auction has ended.</p>
+                   {parseFloat(ethers.formatEther(auctionData.highestBid)) > 0 ? (
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                       <p style={{ margin: 0, fontSize: '0.9rem' }}>Withdraw winning bid proceeds:</p>
+                       <div style={{ display: 'flex', gap: '1rem' }}>
+                         <input 
+                           type="text"
+                           className="input-field"
+                           placeholder="Recipient Wallet Address (0x...)" 
+                           value={withdrawRecipient}
+                           onChange={(e) => setWithdrawRecipient(e.target.value)} 
+                         />
+                         <button 
+                           className="btn-primary"
+                           onClick={withdrawProceeds} 
+                           disabled={proceedsLoading || !withdrawRecipient}
+                           style={{ whiteSpace: 'nowrap' }}
+                         >
+                           {proceedsLoading ? "Processing..." : "Withdraw Proceeds"}
+                         </button>
+                       </div>
+                     </div>
+                   ) : (
+                     <p style={{ color: 'var(--text-muted)' }}>No funds available to withdraw.</p>
+                   )}
+                 </div>
               ) : (
                  <button className="btn-primary" onClick={endAuction} disabled={loading}>
                    {loading ? "Ending..." : "End Auction"}
