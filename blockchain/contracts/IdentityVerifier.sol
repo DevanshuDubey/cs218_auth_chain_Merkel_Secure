@@ -110,6 +110,19 @@ contract IdentityVerifier is AccessControl {
         emit IdentityRevoked(_user, msg.sender);
     }
 
+    /**
+     * @notice Reject a pending identity request. Callable only by VERIFIER_ROLE holders.
+     * @param _user Address of the user whose identity should be rejected
+     */
+    function rejectIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
+        require(_user != address(0), "Invalid user address");
+        require(
+            identities[_user].status == Status.Pending,
+            "Can only reject Pending users"
+        );
+        identities[_user].status = Status.Rejected;
+        emit IdentityRejected(_user, msg.sender);
+    }
 
     /**
      * @notice Check whether a given address has a Verified identity.
