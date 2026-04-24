@@ -154,7 +154,7 @@ function App() {
           >
             Dashboard
           </button>
-          {(!role || role === 'USER') && (
+          {(!role || role === 'USER' || role === 'ADMIN') && (
             <button 
               onClick={() => setActiveView("auction")} 
               className={`btn-secondary ${activeView === "auction" ? "active" : ""}`}

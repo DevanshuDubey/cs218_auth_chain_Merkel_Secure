@@ -146,11 +146,14 @@
       "imports": [
         "./IERC165.sol"
       ],
+      "imports": [
+        "./IERC165.sol"
+      ],
       "versionPragmas": [
-        "^0.8.20"
+        "^0.8.20""^0.8.20"
       ],
       "artifacts": [
-        "ERC165"
+        "ERC165""ERC165"
       ]
     },
     "/home/devanshu/Workspace/cs218_auth_chain_Merkel_Secure/blockchain/node_modules/@openzeppelin/contracts/access/IAccessControl.sol": {
@@ -182,11 +185,12 @@
         }
       },
       "imports": [],
+      "imports": [],
       "versionPragmas": [
-        ">=0.8.4"
+        ">=0.8.4"">=0.8.4"
       ],
       "artifacts": [
-        "IAccessControl"
+        "IAccessControl""IAccessControl"
       ]
     },
     "/home/devanshu/Workspace/cs218_auth_chain_Merkel_Secure/blockchain/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
