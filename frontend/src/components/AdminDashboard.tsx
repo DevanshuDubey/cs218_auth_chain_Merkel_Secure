@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { useWallet } from "./WalletContext.tsx";
 import IdentityABI from "../abis/IdentityVerifier.json";
+import AuctionABI from "../abis/KYCGatedAuction.json";
 
 const IDENTITY_ADDR = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const AUCTION_ADDR = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
 const AdminDashboard = () => {
   const { signer } = useWallet();
@@ -11,6 +13,20 @@ const AdminDashboard = () => {
   const [verifierToRemove, setVerifierToRemove] = useState("");
   const [loadingAdd, setLoadingAdd] = useState(false);
   const [loadingRemove, setLoadingRemove] = useState(false);
+  const [auctionEnded, setAuctionEnded] = useState(false);
+
+  useEffect(() => {
+    if (signer) {
+      const fetchAuction = async () => {
+        try {
+          const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+          const ended = await auctionContract.ended();
+          setAuctionEnded(ended);
+        } catch (e) { console.error(e) }
+      };
+      fetchAuction();
+    }
+  }, [signer]);
 
   const addVerifier = async () => {
     try {
@@ -56,6 +72,13 @@ const AdminDashboard = () => {
         <h2 style={{ margin: 0, color: 'var(--accent-glow)' }}>Administration Console</h2>
         <p>System configuration and access management.</p>
       </header>
+
+      {auctionEnded && (
+        <div className="glass-card mb-8" style={{ border: '1px solid #e53e3e', backgroundColor: 'rgba(229, 62, 62, 0.1)' }}>
+          <h3 style={{ color: '#e53e3e', margin: '0 0 0.5rem' }}>Auction Ended</h3>
+          <p style={{ margin: 0 }}>The Kredent Live Auction has concluded. Check the Live Auction tab for details.</p>
+        </div>
+      )}
 
       <div className="glass-card" style={{ marginBottom: '2rem' }}>
         <h3>Authorize New Verifier</h3>

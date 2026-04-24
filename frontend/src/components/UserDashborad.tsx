@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { useWallet } from "./WalletContext.tsx";
 import IdentityABI from "../abis/IdentityVerifier.json";
+import AuctionABI from "../abis/KYCGatedAuction.json";
 
 const IDENTITY_ADDR = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const AUCTION_ADDR = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const BACKEND_URL = "http://localhost:5001";
 
 const UserDashboard = () => {
@@ -12,6 +14,7 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [dbStatus, setDbStatus] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState(false);
+  const [auctionEnded, setAuctionEnded] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -32,6 +35,14 @@ const UserDashboard = () => {
         }
       } catch (err) {
         console.error("Backend not reachable or error fetching DB status", err);
+      }
+
+      try {
+        const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+        const ended = await auctionContract.ended();
+        setAuctionEnded(ended);
+      } catch (e) {
+        console.error("Error fetching auction status:", e);
       }
 
     } catch (error: any) {
@@ -112,6 +123,13 @@ const UserDashboard = () => {
           {isVerified ? "Verified Identity" : (dbStatus || "Not Registered")}
         </span>
       </header>
+
+      {auctionEnded && (
+        <div className="glass-card mb-8" style={{ border: '1px solid #e53e3e', backgroundColor: 'rgba(229, 62, 62, 0.1)' }}>
+          <h3 style={{ color: '#e53e3e', margin: '0 0 0.5rem' }}>Auction Ended</h3>
+          <p style={{ margin: 0 }}>The Kredent Live Auction has concluded. Check the Live Auction tab for details.</p>
+        </div>
+      )}
 
       {!dbStatus && !isVerified ? (
         <div className="glass-card mb-20">

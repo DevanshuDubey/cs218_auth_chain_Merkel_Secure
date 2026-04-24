@@ -8,13 +8,16 @@ const IDENTITY_ADDR = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const AUCTION_ADDR = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
 const AuctionPanel = () => {
-  const { signer, account } = useWallet();
+  const { signer, account, role } = useWallet();
   const [bidAmount, setBidAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [withdrawLoading, setWithdrawLoading] = useState(false);
   
   const [auctionData, setAuctionData] = useState({
     highestBid: "0",
     highestBidder: "No bids yet",
+    ended: false,
+    pendingReturn: "0",
   });
 
   const fetchData = async () => {
@@ -24,10 +27,17 @@ const AuctionPanel = () => {
 
       const highestBid = (await auctionContract.highestBid()).toString();
       const highestBidder = await auctionContract.highestBidder();
+      const ended = await auctionContract.ended();
+      let pendingReturn = "0";
+      if (account) {
+        pendingReturn = (await auctionContract.pendingReturns(account)).toString();
+      }
 
       setAuctionData({
         highestBid: highestBid,
-        highestBidder
+        highestBidder,
+        ended,
+        pendingReturn
       });
     } catch (error: any) {
       console.error("Error fetching auction data:", error);
@@ -71,10 +81,42 @@ const AuctionPanel = () => {
         errorMessage = "Identity verification is required to be a part of auction.";
       } else if (error.message && error.message.includes("Invalid bid amount")) {
         errorMessage = "Bid must be higher than the current highest bid.";
-      } else if (error.message && error.message.includes("Auction ended")) {
+      } else if (error.message && error.message.includes("Auction ended") || error.message.includes("Auction already ended")) {
         errorMessage = "Auction has already ended.";
       }
       alert(errorMessage);
+      setLoading(false);
+    }
+  };
+
+  const withdrawRefund = async () => {
+    try {
+      setWithdrawLoading(true);
+      const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+      const tx = await auctionContract.withdrawRefund();
+      await tx.wait();
+      alert("Refund withdrawn successfully!");
+      fetchData();
+    } catch (error: any) {
+      console.error("Error withdrawing refund:", error);
+      alert("Failed to withdraw refund: " + (error.reason || error.message));
+    } finally {
+      setWithdrawLoading(false);
+    }
+  };
+
+  const endAuction = async () => {
+    try {
+      setLoading(true);
+      const auctionContract = new ethers.Contract(AUCTION_ADDR, AuctionABI.abi, signer);
+      const tx = await auctionContract.endAuction();
+      await tx.wait();
+      alert("Auction ended successfully!");
+      fetchData();
+    } catch (error: any) {
+      console.error("Error ending auction:", error);
+      alert("Failed to end auction: " + (error.reason || error.message));
+    } finally {
       setLoading(false);
     }
   };
@@ -87,7 +129,7 @@ const AuctionPanel = () => {
       </header>
 
       <div className="glass-card" style={{ border: '1px solid var(--accent-glow)' }}>
-        <h3 style={{ color: 'var(--accent-glow)' }}>Exclusive Gated Auction</h3>
+        <h3 style={{ color: 'var(--accent-glow)' }}>Exclusive Gated Auction {auctionData.ended && "(ENDED)"}</h3>
         
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
           <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
@@ -100,36 +142,67 @@ const AuctionPanel = () => {
           </div>
         </div>
 
-        {bidAmount && parseFloat(bidAmount) <= parseFloat(ethers.formatEther(auctionData.highestBid)) && (
-          <p style={{ color: '#e53e3e', fontSize: '0.85rem', marginBottom: '1rem' }}>
-            Bid amount must be higher than the current highest amount.
-          </p>
-        )}
+        {role === "ADMIN" ? (
+           <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+              {auctionData.ended ? (
+                 <p style={{ color: '#e53e3e', fontWeight: 'bold' }}>This auction has ended.</p>
+              ) : (
+                 <button className="btn-primary" onClick={endAuction} disabled={loading}>
+                   {loading ? "Ending..." : "End Auction"}
+                 </button>
+              )}
+           </div>
+        ) : (
+           <div>
+              {auctionData.ended ? (
+                 <p style={{ color: '#e53e3e', fontWeight: 'bold', marginBottom: '1rem' }}>This auction has ended.</p>
+              ) : (
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+                   {bidAmount && parseFloat(bidAmount) <= parseFloat(ethers.formatEther(auctionData.highestBid)) && (
+                     <p style={{ color: '#e53e3e', fontSize: '0.85rem' }}>
+                       Bid amount must be higher than the current highest amount.
+                     </p>
+                   )}
+                   <div style={{ display: 'flex', gap: '1rem' }}>
+                     <input 
+                       type="number"
+                       className="input-field"
+                       placeholder="Amount in ETH" 
+                       value={bidAmount}
+                       onChange={(e) => setBidAmount(e.target.value)} 
+                     />
+                     <button 
+                       className="btn-primary"
+                       onClick={placeBid} 
+                       disabled={loading || !bidAmount || parseFloat(bidAmount) <= parseFloat(ethers.formatEther(auctionData.highestBid))}
+                       style={{ whiteSpace: 'nowrap' }}
+                     >
+                       {loading ? "Bidding..." : "Place Bid"}
+                     </button>
+                   </div>
+                   {loading && (
+                     <div className="processing-bar-container" style={{ width: '100%' }}>
+                       <div className="processing-bar"></div>
+                     </div>
+                   )}
+                 </div>
+              )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <input 
-              type="number"
-              className="input-field"
-              placeholder="Amount in ETH" 
-              value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)} 
-            />
-            <button 
-              className="btn-primary"
-              onClick={placeBid} 
-              disabled={loading || !bidAmount || parseFloat(bidAmount) <= parseFloat(ethers.formatEther(auctionData.highestBid))}
-              style={{ whiteSpace: 'nowrap' }}
-            >
-              {loading ? "Bidding..." : "Place Bid"}
-            </button>
-          </div>
-          {loading && (
-            <div className="processing-bar-container" style={{ width: '100%' }}>
-              <div className="processing-bar"></div>
-            </div>
-          )}
-        </div>
+              <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+                <h4 style={{ marginBottom: '1rem' }}>Your Refunds</h4>
+                {parseFloat(ethers.formatEther(auctionData.pendingReturn)) > 0 ? (
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ fontSize: '1.1rem' }}>Available: {ethers.formatEther(auctionData.pendingReturn)} ETH</span>
+                    <button className="btn-secondary" onClick={withdrawRefund} disabled={withdrawLoading}>
+                      {withdrawLoading ? "Withdrawing..." : "Withdraw Refund"}
+                    </button>
+                  </div>
+                ) : (
+                  <p style={{ color: 'var(--text-muted)' }}>You have no pending refunds to withdraw.</p>
+                )}
+              </div>
+           </div>
+        )}
       </div>
     </div>
   );
