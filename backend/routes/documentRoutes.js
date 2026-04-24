@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadDocument, checkStatus, getPendingRequests, getDocumentDetails, updateDocumentStatus } from '../controllers/documentController.js';
+import { uploadDocument, checkStatus, getPendingRequests, getDocumentDetails, updateDocumentStatus, deleteDocument } from '../controllers/documentController.js';
 
 const router = express.Router();
 
@@ -14,6 +14,9 @@ router.get('/:address', getDocumentDetails);
 
 // POST /api/documents/:address/status
 router.post('/:address/status', updateDocumentStatus);
+
+// DELETE /api/documents/:address
+router.delete('/:address', deleteDocument);
 
 // GET /api/documents/status/:address
 router.get('/status/:address', checkStatus);

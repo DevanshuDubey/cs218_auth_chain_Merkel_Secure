@@ -15,7 +15,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<"ADMIN" | "VERIFIER" | "USER" | null>(null);
   const [signer, setSigner] = useState<any>(null);
 
-  const IDENTITY_ADDR = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+  const IDENTITY_ADDR = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
   const checkRoles = async (userAddr: string, currentSigner: any) => {
     try {
@@ -66,11 +66,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
           window.ethereum.request({ method: 'eth_accounts' }).then(async () => {
              const provider = new ethers.BrowserProvider(window.ethereum);
              const s = await provider.getSigner();
+             setSigner(s);
              checkRoles(accs[0], s);
           });
         } else {
           setAccount(null);
           setRole(null);
+          setSigner(null);
         }
       });
     }

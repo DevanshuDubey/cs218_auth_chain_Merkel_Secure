@@ -105,7 +105,7 @@ export const updateDocumentStatus = async (req, res) => {
         const { address } = req.params;
         const { status, verifierAddress } = req.body;
 
-        if (!['Verified', 'Revoked'].includes(status)) {
+        if (!['Verified', 'Revoked', 'Rejected'].includes(status)) {
             return res.status(400).json({ error: "Invalid status" });
         }
 
@@ -124,5 +124,16 @@ export const updateDocumentStatus = async (req, res) => {
     } catch (error) {
         console.error("Error updating status:", error);
         return res.status(500).json({ error: "Server error" });
+    }
+};
+
+export const deleteDocument = async (req, res) => {
+    try {
+        const { address } = req.params;
+        await UserDocument.deleteOne({ walletAddress: address.toLowerCase() });
+        return res.status(200).json({ success: true, message: "Document deleted" });
+    } catch (error) {
+        console.error("Error deleting document:", error);
+        return res.status(500).json({ error: "Failed to delete document" });
     }
 };

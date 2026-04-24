@@ -13,7 +13,8 @@ contract IdentityVerifier is AccessControl {
         NotRegistered,
         Pending,
         Verified,
-        Revoked
+        Revoked,
+        Rejected
     }
 
     /**
@@ -43,6 +44,7 @@ contract IdentityVerifier is AccessControl {
     /// @param user    The address whose identity was revoked
     /// @param revoker The verifier who revoked
     event IdentityRevoked(address indexed user, address indexed revoker);
+    event IdentityRejected(address indexed user, address indexed rejecter);
 
     /**
      * @notice Deploys the contract and grants DEFAULT_ADMIN_ROLE to the deployer.
@@ -106,6 +108,16 @@ contract IdentityVerifier is AccessControl {
         );
         identities[_user].status = Status.Revoked;
         emit IdentityRevoked(_user, msg.sender);
+    }
+
+    function rejectIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
+        require(_user != address(0), "Invalid user address");
+        require(
+            identities[_user].status == Status.Pending,
+            "Can only reject Pending users"
+        );
+        identities[_user].status = Status.Rejected;
+        emit IdentityRejected(_user, msg.sender);
     }
 
 

@@ -143,12 +143,14 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "./IERC165.sol"
+      ],
       "versionPragmas": [
-        ">=0.8.4"
+        "^0.8.20"
       ],
       "artifacts": [
-        "IAccessControl"
+        "ERC165"
       ]
     },
     "/home/devanshu/Workspace/cs218_auth_chain_Merkel_Secure/blockchain/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
@@ -179,14 +181,12 @@
           }
         }
       },
-      "imports": [
-        "./IERC165.sol"
-      ],
+      "imports": [],
       "versionPragmas": [
-        "^0.8.20"
+        ">=0.8.4"
       ],
       "artifacts": [
-        "ERC165"
+        "IAccessControl"
       ]
     },
     "/home/devanshu/Workspace/cs218_auth_chain_Merkel_Secure/blockchain/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
