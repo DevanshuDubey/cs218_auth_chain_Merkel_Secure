@@ -2,12 +2,28 @@
 
 A comprehensive, zero-knowledge-compliant decentralized application (dApp) for Identity Verification (KYC). This project bridges the gap between Web3 transparency and Web2 privacy requirements by utilizing a hybrid architecture: securing cryptographic hashes on an Ethereum-compatible blockchain while storing sensitive documents in a fully encrypted, off-chain MongoDB database.
 
+---
+
+## 👥 Team Members
+
+| Name                 | Roll Number |
+|----------------------|-------------|
+| Devanshu Dubey       | 240001024   |
+| Abhinav Patel        | 240001004   |
+| Abhay Lodhi          | 240001003   |
+| Pratyush Gupta       | 240001054   |
+| Abhishek Kumar Verma | 240001005   |
+| Vivek Sahu           | 240005051   |
+
+---
+
 ## 🚀 Key Features
 
 *   **Zero-Knowledge Philosophy**: Sensitive user documents never touch the blockchain. Only cryptographic `keccak256` hashes are stored publicly.
 *   **Encrypted Off-Chain Storage**: Documents are encrypted using `AES-256-CBC` symmetric encryption before being saved to MongoDB, ensuring GDPR and privacy compliance.
 *   **Role-Based Access Control (RBAC)**: Smart contracts enforce strict roles (`DEFAULT_ADMIN_ROLE`, `VERIFIER_ROLE`). Only authorized agents can approve or revoke identities.
 *   **Cryptographic Auditing**: Verifiers dynamically download decrypted documents, compute their hash locally, and match it against the immutable blockchain hash to mathematically prove document integrity.
+*   **KYC-Gated Auction**: A composable `KYCGatedAuction` contract demonstrates how verified identities can gate access to DeFi functions.
 *   **Clean UI/UX**: Built with React and Ethers.js, featuring a clean, literary "paperback" aesthetic.
 
 ---
@@ -31,103 +47,140 @@ A comprehensive, zero-knowledge-compliant decentralized application (dApp) for I
 
 ## ⚙️ Installation & Setup
 
-### 1. Backend Setup (MongoDB & Encryption)
-Navigate to the backend directory and install dependencies:
+### 1. Clone the Repository
+```bash
+git clone <repo-url>
+cd cs218_auth_chain_Merkel_Secure
+```
+
+### 2. Backend Setup (MongoDB & Encryption)
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend` folder with the following configuration:
+Create a `.env` file in the `backend` folder:
 ```env
-# Your MongoDB Connection String (Atlas or Local)
 MONGO_URI=mongodb+srv://<username>:<password>@cluster0.../kyc_database?appName=Cluster0
-
-# A secure 32-character encryption key (Do not lose this, or documents will be permanently locked!)
 ENCRYPTION_KEY=12345678901234567890123456789012
-
-# Port
 PORT=5001
 ```
 
-### 2. Blockchain Setup (Hardhat)
-Navigate to the blockchain directory and install dependencies:
+### 3. Blockchain Setup (Hardhat)
 ```bash
 cd blockchain
 npm install
 ```
 
-Start the local Hardhat node in one terminal:
+**Compile contracts:**
 ```bash
-npx hardhat node
+npx hardhat compile
 ```
 
-In a *second* terminal, deploy the smart contracts to your local node:
+**Run tests with gas report:**
 ```bash
+npx hardhat test
+```
+
+**Run coverage report:**
+```bash
+npx hardhat coverage
+```
+
+**Start local node & deploy:**
+```bash
+# Terminal 1 — start node
+npx hardhat node
+
+# Terminal 2 — deploy contracts
 npx hardhat ignition deploy ignition/modules/Deploy.js --network localhost
 ```
-*Note: The deployer address (usually Account #0) automatically becomes the Admin.*
+*The deployer address (Account #0) automatically becomes the Admin.*
 
-### 3. Frontend Setup
-Navigate to the frontend directory and install dependencies:
+### 4. Frontend Setup
 ```bash
 cd frontend
 npm install
 ```
-*Ensure the contract addresses in `WalletContext.tsx`, `UserDashboard.tsx`, `AdminDashboard.tsx`, and `VerifierDashboard.tsx` match the addresses generated during the Hardhat deployment.*
+*Ensure the contract addresses in `WalletContext.tsx`, `UserDashboard.tsx`, `AdminDashboard.tsx`, and `VerifierDashboard.tsx` match the addresses generated during deployment.*
 
 ---
 
 ## 🏃‍♂️ Running the Application
 
-You will need three separate terminals running simultaneously to operate the full stack:
+You need three terminals running simultaneously:
 
-**Terminal 1: Blockchain Node**
-```bash
-cd blockchain
-npx hardhat node
-```
-
-**Terminal 2: Backend Server**
-```bash
-cd backend
-npm run start
-# Or use: nodemon server.js
-```
-
-**Terminal 3: Frontend Server**
-```bash
-cd frontend
-npm run dev
-```
+| Terminal | Command | Purpose |
+|----------|---------|---------|
+| 1 | `cd blockchain && npx hardhat node` | Local Ethereum node |
+| 2 | `cd backend && npm run start` | Express API server |
+| 3 | `cd frontend && npm run dev` | React dev server |
 
 ---
 
-## 📖 Standard Operating Workflow
+## 📖 Usage Walkthrough
 
-### 1. User Registration
-1. User connects MetaMask (e.g., Account #1).
-2. User uploads an identity document (Image/PDF) via the **User Dashboard**.
-3. Frontend calculates the file's `keccak256` hash and sends the raw file to the backend.
-4. Backend encrypts the file and saves it to MongoDB (`status: Pending`).
-5. User confirms the MetaMask transaction to save the calculated hash to the blockchain.
+### Step 1: Admin Configuration
+1. Import Hardhat Account #0 private key into MetaMask.
+2. Connect MetaMask via the DApp → you will see the **Admin Dashboard**.
+3. Paste the wallet address of your designated verifier (e.g., Account #19) and click **"Grant Role"**.
 
-### 2. Admin Configuration
-1. Admin connects MetaMask (Account #0 - The deployer).
-2. Admin navigates to the **Admin Dashboard**.
-3. Admin inputs the wallet address of an agent (e.g., Account #1) and clicks "Grant Role" to authorize them as a Verifier.
+### Step 2: User Registration (KYC Upload)
+1. Switch MetaMask to a user account (e.g., Account #1).
+2. Connect to the DApp → you will see the **User Interface**.
+3. Upload an identity document (PDF or image) and click **"Encrypt & Submit"**.
+4. The frontend: (a) computes the `keccak256` hash of the file, (b) sends the raw file to the backend for AES-256 encryption, and (c) calls `registerIdentity(hash)` on-chain via MetaMask.
+5. Status changes to **Pending**.
 
-### 3. Verification Process
-1. Verifier connects MetaMask (Account #19).
-2. Verifier navigates to the **Verifier Portal**, which fetches a list of pending requests from the database.
-3. Verifier clicks a pending address. The backend decrypts the document and sends it to the UI for visual inspection.
-4. Verifier clicks **"Verify Hash"**. The UI calculates the hash of the downloaded image and compares it to the hash stored on the blockchain.
-5. If the hashes match, the Verifier clicks **"Grant Verification"**.
-6. The smart contract updates to `Verified`, and the MongoDB database records the `verifiedBy` address and timestamp.
+### Step 3: Verifier Approval
+1. Switch MetaMask to the verifier account (Account #19).
+2. Connect to the DApp → you will see the **Verifier Portal**.
+3. Click on a pending address. The backend decrypts the stored document and displays it.
+4. Click **"Verify Hash"** — the UI recomputes the hash from the decrypted document and compares it to the on-chain hash.
+5. If hashes match, click **"Grant Verification"** → the on-chain status changes to **Verified**.
+
+### Step 4: KYC-Gated Auction
+1. Switch back to the user account.
+2. Now the **Exclusive Gated Auction** section is enabled.
+3. Enter a bid amount and click **"Place Bid"** → MetaMask prompts for the ETH transfer.
+4. The contract checks `isVerified(msg.sender)` — only verified users can bid.
+
+---
+
+## 🔗 On-Chain vs Off-Chain Data
+
+| Stored ON-CHAIN | Kept OFF-CHAIN |
+|----------------|----------------|
+| `keccak256` hash of identity document | The actual document (encrypted in MongoDB) |
+| Verification status enum | Personal details (name, DOB, address) |
+| Verifier address, timestamp | Document images, biometric data |
+| Auction bids, highest bidder | User KYC for regulatory compliance |
+
+> **GDPR Compliance**: GDPR Article 17 (Right to Erasure) is impossible to satisfy on a public blockchain. The hash-only pattern is the industry-standard solution — the hash proves the document existed and was verified, but reveals nothing about the document itself.
 
 ---
 
 ## ⚠️ Troubleshooting
 
-- **MetaMask RPC Error -32603 (Nonce Desync)**: If you restart your Hardhat node, MetaMask will remember old transactions. Go to MetaMask -> Settings -> Advanced -> Clear activity tab data to reset your account.
+- **MetaMask RPC Error -32603 (Nonce Desync)**: If you restart your Hardhat node, go to MetaMask → Settings → Advanced → Clear activity tab data to reset your account.
 - **CORS Errors**: Ensure your backend `.env` is using `PORT=5001`. Port 5000 is reserved by macOS AirPlay Receiver.
+
+---
+
+## 📊 Gas Optimization
+
+See [GAS_REPORT.md](./GAS_REPORT.md) for the detailed before/after analysis. Key result: **`verifyIdentity()` gas cost reduced by 41%** through struct packing.
+
+---
+
+## 🧪 Testing
+
+- **32 tests**, all passing
+- **100% line coverage**, 100% function coverage, 88% branch coverage
+
+Run tests:
+```bash
+cd blockchain
+npx hardhat test        # with gas report
+npx hardhat coverage    # with coverage report
+```

@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 // is AccessControl to inherit openzeppelin's security
 contract IdentityVerifier is AccessControl {
+    /// @notice Role identifier for authorised verifiers
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
 
     // track user's verification status
@@ -15,14 +16,21 @@ contract IdentityVerifier is AccessControl {
         Revoked
     }
 
-    //store for each user
+    /**
+     * @notice On-chain record for a single identity.
+     * @dev Struct is tightly packed:
+     *      Slot 0: document_hash  (bytes32 = 32 bytes → full slot)
+     *      Slot 1: status (1 byte) + verified_by (20 bytes) + timestamp (8 bytes) = 29 bytes → single slot
+     *      Total: 2 storage slots instead of 4.
+     */
     struct Identity {
         bytes32 document_hash;
-        Status status;
-        address verified_by;
-        uint256 timestamp; //when verified
+        Status status;            // uint8  —  1 byte
+        address verified_by;      // 20 bytes , who verified
+        uint64 timestamp;         // 8 bytes  , when verified
     }
 
+    /// @notice Mapping from user address to their identity record
     mapping(address => Identity) public identities;
 
     //events which will be listened by frontend
@@ -30,14 +38,24 @@ contract IdentityVerifier is AccessControl {
     //(eg, all IdentityRegistered events but for my wallet address)
     event IdentityRegistered(address indexed user, bytes32 document_hash);
     event IdentityVerified(address indexed user, address indexed verifier);
+
+    /// @notice Emitted when a verifier revokes an identity
+    /// @param user    The address whose identity was revoked
+    /// @param revoker The verifier who revoked
     event IdentityRevoked(address indexed user, address indexed revoker);
 
+    /**
+     * @notice Deploys the contract and grants DEFAULT_ADMIN_ROLE to the deployer.
+     */
     constructor() {
-        //DEFAULT_ADMIN_ROLE from openzepp
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    //we get hash of document from frontend
+    /**
+     * @notice Register a new identity by submitting the keccak256 hash of
+     *         your off-chain document.
+     * @param _document_hash keccak256 hash of the identity document
+     */
     function registerIdentity(bytes32 _document_hash) external {
         require(_document_hash != 0, "Hash cannot be empty");
 
@@ -59,6 +77,10 @@ contract IdentityVerifier is AccessControl {
         emit IdentityRegistered(msg.sender, _document_hash);
     }
 
+    /**
+     * @notice Approve a pending identity. Callable only by VERIFIER_ROLE holders.
+     * @param _user Address of the user whose identity should be verified
+     */
     function verifyIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
         require(_user != address(0), "Invalid user address");
         require(
@@ -67,40 +89,70 @@ contract IdentityVerifier is AccessControl {
         );
         identities[_user].status = Status.Verified;
         identities[_user].verified_by = msg.sender;
-        identities[_user].timestamp = block.timestamp;
+        identities[_user].timestamp = uint64(block.timestamp);
         emit IdentityVerified(_user, msg.sender);
     }
 
+    /**
+     * @notice Revoke a verified or pending identity. Callable only by VERIFIER_ROLE holders.
+     * @param _user Address of the user whose identity should be revoked
+     */
     function revokeIdentity(address _user) external onlyRole(VERIFIER_ROLE) {
         require(_user != address(0), "Invalid user address");
         require(
-            identities[_user].status == Status.Verified,
-            "Can only revoke Verified users"
+            identities[_user].status == Status.Verified ||
+                identities[_user].status == Status.Pending,
+            "Can only revoke Verified or Pending users"
         );
         identities[_user].status = Status.Revoked;
         emit IdentityRevoked(_user, msg.sender);
     }
+
+
+    /**
+     * @notice Check whether a given address has a Verified identity.
+     * @param _user Address to check
+     * @return True if the user's status is Verified
+     */
 
     //view since we are only reading data so zero gas
     function isVerified(address _user) external view returns (bool) {
         return identities[_user].status == Status.Verified;
     }
 
+    // =============== ADMIN FUNCTIONS ===============
+
+    /**
+     * @notice Grant the VERIFIER_ROLE to a new address. Only callable by DEFAULT_ADMIN_ROLE.
+     * @param _verifier Address to be granted the verifier role
+     */
     function addVerifier(address _verifier) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_verifier != address(0), "Invalid verifier address");
         grantRole(VERIFIER_ROLE, _verifier);
     }
 
+    /**
+     * @notice Remove the VERIFIER_ROLE from an address. Only callable by DEFAULT_ADMIN_ROLE.
+     * @param _verifier Address to lose the verifier role
+     */
     function removeVerifier(address _verifier) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_verifier != address(0), "Invalid verifier address");
         revokeRole(VERIFIER_ROLE, _verifier);
     }
 
+    /**
+     * @notice Retrieve the full identity record for a user.
+     * @param _user Address to query
+     * @return documentHash  keccak256 hash stored on-chain
+     * @return status        Current verification status
+     * @return verifiedBy    Address of the verifier (zero if not yet verified)
+     * @return timestamp     Block timestamp of verification (0 if not yet verified)
+     */
     function getIdentityRecord(address _user) external view returns (
         bytes32 documentHash,
         Status status,
         address verifiedBy,
-        uint256 timestamp
+        uint64 timestamp
     ) {
         Identity memory id = identities[_user];
         return (id.document_hash, id.status, id.verified_by, id.timestamp);
