@@ -62,14 +62,14 @@ const AdminDashboard = () => {
         <p className="mb-4">Grant the VERIFIER_ROLE to a trusted address. They will gain the ability to approve user KYC requests.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <input 
+            <input
               className="input-field"
-              placeholder="Verifier Wallet Address (0x...)" 
+              placeholder="Verifier Wallet Address (0x...)"
               value={newVerifier}
-              onChange={(e) => setNewVerifier(e.target.value)} 
+              onChange={(e) => setNewVerifier(e.target.value)}
             />
-            <button 
-              className="btn-primary" 
+            <button
+              className="btn-primary"
               onClick={addVerifier}
               disabled={loadingAdd || !newVerifier}
               style={{ whiteSpace: 'nowrap' }}
@@ -90,14 +90,14 @@ const AdminDashboard = () => {
         <p className="mb-4">Remove the VERIFIER_ROLE from an address. They will no longer be able to approve user KYC requests.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <input 
+            <input
               className="input-field"
-              placeholder="Verifier Wallet Address (0x...)" 
+              placeholder="Verifier Wallet Address (0x...)"
               value={verifierToRemove}
-              onChange={(e) => setVerifierToRemove(e.target.value)} 
+              onChange={(e) => setVerifierToRemove(e.target.value)}
             />
-            <button 
-              className="btn-primary" 
+            <button
+              className="btn-primary"
               onClick={removeVerifier}
               disabled={loadingRemove || !verifierToRemove}
               style={{ whiteSpace: 'nowrap', backgroundColor: loadingRemove || !verifierToRemove ? 'var(--bg-surface-hover)' : '#e74c3c' }}

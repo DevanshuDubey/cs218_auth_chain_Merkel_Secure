@@ -11,7 +11,7 @@ const VerifierDashboard = () => {
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [documentBase64, setDocumentBase64] = useState<string | null>(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [hashMatched, setHashMatched] = useState<boolean | null>(null);
   const [blockchainHash, setBlockchainHash] = useState("");
@@ -37,12 +37,12 @@ const VerifierDashboard = () => {
       setLoading(true);
       setHashMatched(null);
       setBlockchainHash("");
-      
+
       const res = await fetch(`${BACKEND_URL}/api/documents/${address}`);
       const data = await res.json();
-      
+
       if (!res.ok) throw new Error(data.error || "Failed to fetch document");
-      
+
       setDocumentBase64(data.documentBase64);
       setSelectedUser(address);
     } catch (err: any) {
@@ -72,7 +72,7 @@ const VerifierDashboard = () => {
       for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
-      
+
       const localHash = ethers.keccak256(ethers.hexlify(bytes));
 
       if (localHash === onChainHash) {
@@ -199,21 +199,21 @@ const VerifierDashboard = () => {
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-        
+
         {/* Left Column: Pending List */}
         <div className="glass-card">
           <h3 style={{ color: 'var(--accent-glow)' }}>Pending Requests</h3>
           <p className="mb-4" style={{ fontSize: '0.9rem' }}>Click an address to securely fetch and decrypt their KYC document.</p>
-          
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {pendingRequests.length === 0 ? (
               <p style={{ opacity: 0.7 }}>No pending requests.</p>
             ) : (
               pendingRequests.map((req, idx) => (
-                <div 
-                  key={idx} 
-                  style={{ 
-                    padding: '0.75rem', 
+                <div
+                  key={idx}
+                  style={{
+                    padding: '0.75rem',
                     background: selectedUser === req.walletAddress ? 'rgba(6, 182, 212, 0.2)' : 'rgba(0,0,0,0.2)',
                     border: selectedUser === req.walletAddress ? '1px solid var(--accent-glow)' : '1px solid var(--border-color)',
                     cursor: 'pointer',
@@ -236,7 +236,7 @@ const VerifierDashboard = () => {
         {/* Right Column: Document Review Area */}
         <div className="glass-card">
           <h3>Document Verification</h3>
-          
+
           {!selectedUser ? (
             <div style={{ padding: '3rem', textAlign: 'center', opacity: 0.5 }}>
               Select a pending request to begin verification.
@@ -248,10 +248,10 @@ const VerifierDashboard = () => {
               </p>
 
               {documentBase64 ? (
-                <div style={{ 
-                  background: 'rgba(0,0,0,0.3)', 
+                <div style={{
+                  background: 'rgba(0,0,0,0.3)',
                   border: '1px solid var(--border-color)',
-                  borderRadius: '8px', 
+                  borderRadius: '8px',
                   padding: '1rem',
                   marginBottom: '1.5rem',
                   display: 'flex',
@@ -271,53 +271,53 @@ const VerifierDashboard = () => {
 
               {/* Hash Verification Panel */}
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h4 style={{ margin: 0 }}>Cryptographic Proof</h4>
-                    <button className="btn-primary" onClick={verifyHash} disabled={loading} style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
-                        {loading ? "Computing..." : "Verify Hash"}
-                    </button>
-                 </div>
-                 {loading && (
-                    <div className="processing-bar-container" style={{ marginBottom: '1rem' }}>
-                      <div className="processing-bar"></div>
-                    </div>
-                 )}
-                 
-                 {blockchainHash && (
-                    <div style={{ fontFamily: 'monospace', fontSize: '0.8rem', opacity: 0.8, wordBreak: 'break-all' }}>
-                        On-Chain Hash: {blockchainHash}
-                    </div>
-                 )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h4 style={{ margin: 0 }}>Cryptographic Proof</h4>
+                  <button className="btn-primary" onClick={verifyHash} disabled={loading} style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
+                    {loading ? "Computing..." : "Verify Hash"}
+                  </button>
+                </div>
+                {loading && (
+                  <div className="processing-bar-container" style={{ marginBottom: '1rem' }}>
+                    <div className="processing-bar"></div>
+                  </div>
+                )}
 
-                 {hashMatched !== null && (
-                    <div style={{ 
-                        marginTop: '1rem', 
-                        padding: '0.5rem', 
-                        borderRadius: '4px',
-                        background: hashMatched ? 'rgba(72, 187, 120, 0.2)' : 'rgba(229, 62, 62, 0.2)',
-                        color: hashMatched ? '#48bb78' : '#e53e3e',
-                        fontWeight: 'bold',
-                        textAlign: 'center'
-                    }}>
-                        {hashMatched ? "✅ Document Cryptographically Verified!" : "❌ HASH MISMATCH DETECTED! Potential Fraud."}
-                    </div>
-                 )}
+                {blockchainHash && (
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.8rem', opacity: 0.8, wordBreak: 'break-all' }}>
+                    On-Chain Hash: {blockchainHash}
+                  </div>
+                )}
+
+                {hashMatched !== null && (
+                  <div style={{
+                    marginTop: '1rem',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    background: hashMatched ? 'rgba(72, 187, 120, 0.2)' : 'rgba(229, 62, 62, 0.2)',
+                    color: hashMatched ? '#48bb78' : '#e53e3e',
+                    fontWeight: 'bold',
+                    textAlign: 'center'
+                  }}>
+                    {hashMatched ? "✅ Document Cryptographically Verified!" : "❌ HASH MISMATCH DETECTED! Potential Fraud."}
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                  <button 
-                    className="btn-primary" 
-                    onClick={() => rejectUser(selectedUser)} 
+                  <button
+                    className="btn-primary"
+                    onClick={() => rejectUser(selectedUser)}
                     disabled={loading}
                     style={{ backgroundColor: 'transparent', border: '1px solid #e53e3e', color: '#e53e3e' }}
                   >
                     Reject Request
                   </button>
-                  <button 
-                    className="btn-primary" 
-                    onClick={grantVerification} 
+                  <button
+                    className="btn-primary"
+                    onClick={grantVerification}
                     disabled={loading || !hashMatched}
                   >
                     {loading ? "Processing..." : "Grant Verification"}
@@ -340,18 +340,18 @@ const VerifierDashboard = () => {
         <p className="mb-4">Enter a user's wallet address to manually revoke their verified KYC status.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <input 
+            <input
               className="input-field"
               id="revokeAddress"
-              placeholder="User Wallet Address (0x...)" 
+              placeholder="User Wallet Address (0x...)"
               style={{ flex: '1' }}
             />
-            <button 
-              className="btn-primary" 
+            <button
+              className="btn-primary"
               onClick={() => {
-                  const val = (document.getElementById('revokeAddress') as HTMLInputElement).value;
-                  revokeUser(val);
-              }} 
+                const val = (document.getElementById('revokeAddress') as HTMLInputElement).value;
+                revokeUser(val);
+              }}
               disabled={loading}
               style={{ backgroundColor: loading ? 'var(--bg-surface-hover)' : '#e53e3e', color: 'white' }}
             >

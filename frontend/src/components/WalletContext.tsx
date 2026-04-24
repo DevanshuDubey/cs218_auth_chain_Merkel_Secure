@@ -20,9 +20,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const checkRoles = async (userAddr: string, currentSigner: any) => {
     try {
       const contract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, currentSigner);
-      
+
       // OpenZeppelin's DEFAULT_ADMIN_ROLE is explicitly bytes32(0), NOT the keccak256 hash of a string!
-      const ADMIN_ROLE = ethers.ZeroHash; 
+      const ADMIN_ROLE = ethers.ZeroHash;
       const VERIFIER_ROLE = ethers.id("VERIFIER_ROLE");
 
       const isAdmin = await contract.hasRole(ADMIN_ROLE, userAddr);
@@ -42,12 +42,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       alert("MetaMask is not installed! Please install it to use this app.");
       return;
     }
-    
+
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
       const currentSigner = await provider.getSigner();
-      
+
       setAccount(accounts[0]);
       setSigner(currentSigner);
       await checkRoles(accounts[0], currentSigner);
@@ -64,10 +64,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
           setAccount(accs[0]);
           // Re-run role check on account switch
           window.ethereum.request({ method: 'eth_accounts' }).then(async () => {
-             const provider = new ethers.BrowserProvider(window.ethereum);
-             const s = await provider.getSigner();
-             setSigner(s);
-             checkRoles(accs[0], s);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const s = await provider.getSigner();
+            setSigner(s);
+            checkRoles(accs[0], s);
           });
         } else {
           setAccount(null);
