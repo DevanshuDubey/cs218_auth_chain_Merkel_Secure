@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-// is AccessControl to inherit openzeppelin's security
+// @notice AccessControl is used to inherit openzeppelin's security
 contract IdentityVerifier is AccessControl {
     /// @notice Role identifier for authorised verifiers
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");

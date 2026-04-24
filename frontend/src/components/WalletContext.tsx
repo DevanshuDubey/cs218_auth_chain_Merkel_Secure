@@ -53,7 +53,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       await checkRoles(accounts[0], currentSigner);
     } catch (error: any) {
       console.error("Wallet connection failed:", error);
-      alert("Failed to connect wallet: " + (error.reason || error.message || "Unknown error"));
+      if (error.code === -32002) {
+        alert("Wallet connection is already pending. Please check your MetaMask popup.");
+      } else {
+        alert("Failed to connect wallet: " + (error.reason || error.message || "Unknown error"));
+      }
     }
   };
 

@@ -64,12 +64,16 @@ const UserDashboard = () => {
         reader.readAsDataURL(file);
       });
 
-      // 2. Register on blockchain FIRST (so cancelling MetaMask doesn't orphan DB data)
+      console.log("Submitting transaction to blockchain for hash:", docHash);
       const identityContract = new ethers.Contract(IDENTITY_ADDR, IdentityABI.abi, signer);
       const tx = await identityContract.registerIdentity(docHash);
+      console.log("Transaction sent! Hash:", tx.hash);
+      console.log("Waiting for block confirmation...");
       await tx.wait();
+      console.log("Blockchain confirmation received!");
 
       // 3. Only AFTER blockchain confirms, upload to backend
+      console.log("Uploading to secure backend...");
       const response = await fetch(`${BACKEND_URL}/api/documents/upload`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,7 +98,9 @@ const UserDashboard = () => {
     } catch (error: any) {
       console.error("Error registering identity:", error);
 
-      if (error.code === 'ACTION_REJECTED' || (error.message && error.message.toLowerCase().includes("user rejected"))) {
+      if (error.code === -32002) {
+        alert("Wallet connection is already pending. Please check your MetaMask popup.");
+      } else if (error.code === 'ACTION_REJECTED' || (error.message && error.message.toLowerCase().includes("user rejected"))) {
         alert("Transaction cancelled by user. No data was saved.");
       } else {
         alert("Registration failed: " + (error.reason || error.message));
