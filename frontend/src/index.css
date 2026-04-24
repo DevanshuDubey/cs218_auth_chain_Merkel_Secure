@@ -1,29 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Deep Web3 Dark Mode Palette - Based on Reference Image */
-  --bg-base: #0B0E14; /* Deep Navy */
-  --bg-surface: #151A25; /* Dark Gray/Blue Surface */
-  --bg-surface-hover: #1E293B; /* Lighter Surface */
+  /* Frutiger Aero Light Palette */
+  --bg-base: #e0f2fe; /* Soft Sky Blue */
+  --bg-gradient-top: #bae6fd;
+  --bg-gradient-bottom: #f0f9ff;
   
-  --text-main: #FFFFFF;
-  --text-muted: #94A3B8;
+  --bg-surface: rgba(255, 255, 255, 0.45); /* Highly translucent white */
+  --bg-surface-hover: rgba(255, 255, 255, 0.65);
   
-  /* Electric Accents */
-  --accent-primary: #3B82F6; /* Solid Electric Blue */
-  --accent-primary-hover: #2563EB;
+  --text-main: #0f172a; /* Deep Slate for readability */
+  --text-muted: #475569;
   
-  /* Neon Cyan Glow */
-  --accent-glow: #06B6D4;
+  /* Aero Glossy Accents */
+  --accent-primary: linear-gradient(180deg, #7dd3fc 0%, #0284c7 100%);
+  --accent-primary-hover: linear-gradient(180deg, #bae6fd 0%, #0369a1 100%);
+  --accent-glow: #38bdf8;
   
-  --border-color: rgba(255, 255, 255, 0.05);
-  --border-strong: #1E293B;
+  --border-color: rgba(255, 255, 255, 0.6);
+  --border-strong: rgba(255, 255, 255, 0.9);
 
-  --font-sans: 'Nunito', system-ui, sans-serif;
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   
-  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+  --shadow-card: 0 8px 32px rgba(2, 132, 199, 0.15);
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.4);
 }
 
 * {
@@ -39,9 +40,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-base);
-  /* Subtle radial gradient to mimic lighting */
-  background-image: radial-gradient(circle at top right, rgba(37, 99, 235, 0.1) 0%, transparent 40%),
-                    radial-gradient(circle at bottom left, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+  background-image: linear-gradient(135deg, var(--bg-gradient-top) 0%, var(--bg-gradient-bottom) 100%);
   background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-sans);
@@ -52,17 +51,18 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-base); 
+  background: rgba(255,255,255,0.3); 
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155; 
-  border-radius: 4px;
+  background: rgba(186, 230, 253, 0.8); 
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.5);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569; 
+  background: rgba(125, 211, 252, 1); 
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -80,13 +80,13 @@ p {
 }
 
 a {
-  color: var(--accent-glow);
+  color: #0284c7;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 a:hover {
-  text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
 }
 
 /* Base Layout */
@@ -94,124 +94,153 @@ a:hover {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
-/* Modern Solid Cards with Glowing Borders */
+/* Frutiger Aero Glass Cards */
 .glass-card {
   background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-top: 2px solid rgba(255, 255, 255, 0.8); /* Strong top highlight */
+  border-radius: 16px;
   padding: 2rem;
   box-shadow: var(--shadow-card);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
   overflow: hidden;
 }
 
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-card);
+  background: var(--bg-surface-hover);
+  box-shadow: 0 15px 40px rgba(2, 132, 199, 0.2), var(--shadow-glow);
 }
 
-/* Top Neon border accent for active cards */
-.glass-card.card-active {
-  border-top: 2px solid var(--accent-glow);
-  border-bottom: 2px solid var(--accent-glow);
-}
-
-/* Buttons */
+/* Frutiger Aero Glossy Buttons */
 .btn-primary {
   background: var(--accent-primary);
   color: #FFF;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
   padding: 0.75rem 1.5rem;
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 0.95rem;
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3), inset 0 2px 5px rgba(255, 255, 255, 0.5);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-primary-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(2, 132, 199, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.6);
 }
 
 .btn-primary:disabled {
-  background: #334155;
-  color: #94A3B8;
-  box-shadow: none;
+  background: #cbd5e1;
+  color: #64748b;
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.4);
   cursor: not-allowed;
   transform: none;
+  text-shadow: none;
 }
 
 .btn-secondary {
-  background: transparent;
-  color: var(--text-muted);
-  border: none;
+  background: rgba(255,255,255,0.3);
+  color: #0369a1;
+  border: 1px solid rgba(255,255,255,0.5);
   padding: 0.75rem 1.5rem;
   font-family: var(--font-sans);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-  color: var(--text-main);
+  background: rgba(255,255,255,0.6);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.1);
 }
 
 .btn-secondary.active {
-  color: var(--text-main);
-  font-weight: 600;
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 /* Inputs */
 .input-field {
   width: 100%;
-  background: #0B0E14;
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  border-top: 1px solid rgba(2, 132, 199, 0.4); /* Inner shadow effect */
   color: var(--text-main);
   padding: 0.85rem 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   font-family: var(--font-sans);
   font-size: 0.95rem;
   outline: none;
   transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .input-field:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  background: #ffffff;
+  border-color: var(--accent-glow);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3), inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .input-field::placeholder {
-  color: #475569;
+  color: #94a3b8;
 }
 
 /* Custom File Input Styling */
 input[type="file"]::file-selector-button {
-  background: var(--bg-surface-hover);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
   padding: 0.4rem 0.8rem;
-  border-radius: 4px;
+  border-radius: 10px;
   margin-right: 1rem;
   cursor: pointer;
   font-family: var(--font-sans);
   font-weight: 500;
   transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.8);
 }
 
 input[type="file"]::file-selector-button:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  border-color: #94a3b8;
 }
 
 /* Status Badges */
@@ -220,25 +249,25 @@ input[type="file"]::file-selector-button:hover {
   border-radius: 20px;
   font-size: 0.75rem;
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(5px);
 }
 .badge-verified {
-  background: rgba(16, 185, 129, 0.1);
-  color: #34D399;
-  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+  border-color: #34d399;
 }
 .badge-pending {
-  background: rgba(245, 158, 11, 0.1);
-  color: #FBBF24;
-  border-color: rgba(245, 158, 11, 0.3);
+  color: #d97706;
+  border-color: #fbbf24;
 }
 .badge-rejected {
-  background: rgba(239, 68, 68, 0.1);
-  color: #F87171;
-  border-color: rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  border-color: #f87171;
 }
 
 /* Navbar */
@@ -247,49 +276,60 @@ input[type="file"]::file-selector-button:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
   width: 100%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
 
 .nav-brand {
   font-family: var(--font-sans);
   font-weight: 800;
   font-size: 1.5rem;
-  color: var(--text-main);
+  color: #0369a1;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.8);
 }
 
 .nav-brand-icon {
-  color: var(--accent-primary);
+  color: #0ea5e9;
   font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
 }
 
 /* Monospace overrides */
 span[style*="monospace"], div[style*="monospace"], p[style*="monospace"] {
   font-family: var(--font-mono) !important;
+  background: rgba(255,255,255,0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.8);
 }
 
 /* Dynamic Processing Bar */
 .processing-bar-container {
   width: 100%;
-  height: 2px;
-  background-color: var(--border-color);
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.5);
   overflow: hidden;
   position: relative;
-  border-radius: 2px;
+  border-radius: 3px;
   margin-top: 1rem;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .processing-bar {
   width: 100%;
   height: 100%;
-  background: var(--accent-glow);
+  background: linear-gradient(90deg, #38bdf8 0%, #0284c7 100%);
   animation: loadingBar 1.5s infinite ease-in-out;
   transform-origin: 0% 50%;
-  box-shadow: 0 0 10px var(--accent-glow);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
 
 @keyframes loadingBar {
@@ -304,22 +344,38 @@ span[style*="monospace"], div[style*="monospace"], p[style*="monospace"] {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Crypto Card Specific Styles (for the Landing Page) */
-.crypto-card-icon {
-  width: 40px;
-  height: 40px;
-  background: #1E293B;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  font-size: 1.5rem;
-  color: var(--text-main);
+/* Background Bubbles for Aero Vibe */
+.bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.chart-svg {
-  width: 100%;
-  height: 60px;
-  margin-top: 1.5rem;
+.bubble {
+  position: absolute;
+  bottom: -100px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 100%);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 50%;
+  animation: floatUp 15s infinite ease-in;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.5), 0 0 10px rgba(255,255,255,0.2);
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(-120vh) scale(1.5) rotate(360deg); opacity: 0; }
+}
+
+/* Utility for landing page text */
+.text-gradient {
+  background: linear-gradient(180deg, #0f172a 0%, #0369a1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
