@@ -82,12 +82,12 @@ const AuctionPanel = () => {
   return (
     <div style={{ animation: "fadeIn 0.5s ease" }}>
       <header className="mb-8">
-        <h2 style={{ margin: 0 }}>Identigate Live Auction</h2>
+        <h2 style={{ margin: 0 }}>Kredent Live Auction</h2>
         <p>Participate in high-stakes auctions securely. Verified identities only.</p>
       </header>
 
-      <div className="glass-card" style={{ border: '1px solid var(--accent-gold)' }}>
-        <h3 style={{ color: 'var(--accent-gold)' }}>Exclusive Gated Auction</h3>
+      <div className="glass-card" style={{ border: '1px solid var(--accent-glow)' }}>
+        <h3 style={{ color: 'var(--accent-glow)' }}>Exclusive Gated Auction</h3>
         
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
           <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "8px", border: "1px solid var(--border-color)" }}>

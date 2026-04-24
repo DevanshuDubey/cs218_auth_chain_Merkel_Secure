@@ -53,11 +53,11 @@ const AdminDashboard = () => {
   return (
     <div style={{ animation: "fadeIn 0.5s ease" }}>
       <header className="mb-8">
-        <h2 style={{ margin: 0, color: 'var(--accent-gold)' }}>Administration Console</h2>
+        <h2 style={{ margin: 0, color: 'var(--accent-glow)' }}>Administration Console</h2>
         <p>System configuration and access management.</p>
       </header>
 
-      <div className="glass-card mb-4">
+      <div className="glass-card" style={{ marginBottom: '2rem' }}>
         <h3>Authorize New Verifier</h3>
         <p className="mb-4">Grant the VERIFIER_ROLE to a trusted address. They will gain the ability to approve user KYC requests.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

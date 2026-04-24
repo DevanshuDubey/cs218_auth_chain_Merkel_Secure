@@ -79,7 +79,7 @@ const IdentityRecordPanel = () => {
 
       {hasSearched && !loading && record && record.documentHash !== ethers.ZeroHash && (
 
-      <div className="glass-card" style={{ border: '1px solid var(--accent-gold)' }}>
+      <div className="glass-card" style={{ border: '1px solid var(--accent-glow)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <p style={{ margin: '0 0 0.25rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Status</p>

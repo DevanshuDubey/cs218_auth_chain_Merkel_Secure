@@ -1,4 +1,4 @@
-# Decentralized Identity Verification (Merkel-Secure)
+# Decentralized Identity Verification (Kredent)
 
 A comprehensive, zero-knowledge-compliant decentralized application (dApp) for Identity Verification (KYC). This project bridges the gap between Web3 transparency and Web2 privacy requirements by utilizing a hybrid architecture: securing cryptographic hashes on an Ethereum-compatible blockchain while storing sensitive documents in a fully encrypted, off-chain MongoDB database.
 

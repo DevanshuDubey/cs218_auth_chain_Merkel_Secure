@@ -111,7 +111,7 @@ const UserDashboard = () => {
 
   return (
     <div style={{ animation: "fadeIn 0.5s ease" }}>
-      <header className="flex-between mb-8">
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ margin: 0 }}>User Interface</h2>
         <span className={`badge ${isVerified ? 'badge-verified' : 'badge-pending'}`}>
           {isVerified ? "Verified Identity" : (dbStatus || "Not Registered")}
@@ -119,7 +119,7 @@ const UserDashboard = () => {
       </header>
 
       {!dbStatus && !isVerified ? (
-          <div className="glass-card mb-8">
+          <div className="glass-card mb-20">
             <h3>Secure KYC Upload</h3>
             <p className="mb-4">Upload your identity document. The file will be encrypted and stored off-chain. Only its cryptographic hash will be stored permanently on the blockchain to guarantee privacy.</p>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -141,8 +141,8 @@ const UserDashboard = () => {
             )}
           </div>
       ) : (
-          <div className="glass-card mb-8" style={{ border: '1px solid var(--accent-gold)' }}>
-             <h3 style={{ color: 'var(--accent-gold)' }}>KYC Status: {dbStatus || "Verified"}</h3>
+          <div className="glass-card mb-8" style={{ border: '1px solid var(--accent-glow)' }}>
+             <h3 style={{ color: 'var(--accent-glow)' }}>KYC Status: {dbStatus || "Verified"}</h3>
              <p>Your document has been securely submitted. A verifier will review your request shortly. Your data is AES-256 encrypted off-chain.</p>
           </div>
       )}

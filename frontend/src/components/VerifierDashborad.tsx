@@ -194,7 +194,7 @@ const VerifierDashboard = () => {
   return (
     <div style={{ animation: "fadeIn 0.5s ease" }}>
       <header className="mb-8">
-        <h2 style={{ margin: 0, color: 'var(--accent-gold)' }}>Verifier Portal</h2>
+        <h2 style={{ margin: 0, color: 'var(--accent-glow)' }}>Verifier Portal</h2>
         <p>Restricted access: Authorized Verification Agents Only.</p>
       </header>
 
@@ -202,7 +202,7 @@ const VerifierDashboard = () => {
         
         {/* Left Column: Pending List */}
         <div className="glass-card">
-          <h3 style={{ color: 'var(--accent-gold)' }}>Pending Requests</h3>
+          <h3 style={{ color: 'var(--accent-glow)' }}>Pending Requests</h3>
           <p className="mb-4" style={{ fontSize: '0.9rem' }}>Click an address to securely fetch and decrypt their KYC document.</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -214,8 +214,8 @@ const VerifierDashboard = () => {
                   key={idx} 
                   style={{ 
                     padding: '0.75rem', 
-                    background: selectedUser === req.walletAddress ? 'rgba(212, 175, 55, 0.2)' : 'rgba(0,0,0,0.2)',
-                    border: selectedUser === req.walletAddress ? '1px solid var(--accent-gold)' : '1px solid var(--border-color)',
+                    background: selectedUser === req.walletAddress ? 'rgba(6, 182, 212, 0.2)' : 'rgba(0,0,0,0.2)',
+                    border: selectedUser === req.walletAddress ? '1px solid var(--accent-glow)' : '1px solid var(--border-color)',
                     cursor: 'pointer',
                     borderRadius: '6px',
                     fontFamily: 'monospace',
@@ -244,7 +244,7 @@ const VerifierDashboard = () => {
           ) : (
             <>
               <p style={{ fontFamily: 'monospace', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                Reviewing: <span style={{ color: 'var(--accent-gold)' }}>{selectedUser}</span>
+                Reviewing: <span style={{ color: 'var(--accent-glow)' }}>{selectedUser}</span>
               </p>
 
               {documentBase64 ? (
