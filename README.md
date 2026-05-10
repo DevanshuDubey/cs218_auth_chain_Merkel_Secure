@@ -1,4 +1,4 @@
-# Decentralized Identity Verification (Kredent)
+# Project 5 – Decentralized Identity Verification (Kredent)
 
 A comprehensive, zero-knowledge-compliant decentralized application (dApp) for Identity Verification (KYC). This project bridges the gap between Web3 transparency and Web2 privacy requirements by utilizing a hybrid architecture: securing cryptographic hashes on an Ethereum-compatible blockchain while storing sensitive documents in a fully encrypted, off-chain MongoDB database.
 
@@ -32,7 +32,7 @@ A comprehensive, zero-knowledge-compliant decentralized application (dApp) for I
 
 1.  **Frontend (`/frontend`)**: A React (Vite) application that handles user file uploads, MetaMask integration, and the Verifier/Admin dashboards.
 2.  **Backend (`/backend`)**: An Express.js MVC server that handles MongoDB connections, AES encryption/decryption, and document retrieval.
-3.  **Blockchain (`/blockchain`)**: Hardhat environment containing the Solidity smart contracts (`IdentityVerifier.sol`, `KYCGatedAuction.sol`).
+3.  **Blockchain (`/blockchain`)**: Hardhat environment containing the Solidity smart contracts (`IdentityVerifier.sol`, `KYCGatedAuction.sol`) and comprehensive test suites (`/test/IdentityVerifier.test.js`).
 
 ---
 
@@ -49,7 +49,7 @@ A comprehensive, zero-knowledge-compliant decentralized application (dApp) for I
 
 ### 1. Clone the Repository
 ```bash
-git clone <repo-url>
+git clone https://github.com/DevanshuDubey/cs218_auth_chain_Merkel_Secure.git
 cd cs218_auth_chain_Merkel_Secure
 ```
 
@@ -169,14 +169,37 @@ You need three terminals running simultaneously:
 
 ## 📊 Gas Optimization
 
-See [GAS_REPORT.md](./GAS_REPORT.md) for the detailed before/after analysis. Key result: **`verifyIdentity()` gas cost reduced by 41%** through struct packing.
+See [`reports/gas-report.md`](./reports/gas-report.md) for the detailed before/after analysis.
+
+**Key optimisation:** `verifyIdentity()` gas cost **reduced by 41%** through struct packing — `status` (1 byte), `verified_by` (20 bytes), and `timestamp` (8 bytes) are packed into a single 32-byte storage slot instead of occupying separate slots.
+
+| Function            | Before (gas) | After (gas) | Saved | Saving (%) |
+|---------------------|-------------|-------------|-------|------------|
+| `registerIdentity`  | 70,579      | 68,447      | 2,132 | **3.0 %**  |
+| `verifyIdentity`    | 53,308      | 31,240      | 22,068| **41.4 %** |
+| `revokeIdentity`    | 31,120      | 31,137      | −17   | ~0 %       |
+
+Full gas and coverage reports are available in the [`/reports`](./reports/) folder:
+- [`gas-report.txt`](./reports/gas-report.txt) — raw `hardhat-gas-reporter` output
+- [`gas-report.md`](./reports/gas-report.md) — before/after optimisation analysis
+- [`coverage-report.txt`](./reports/coverage-report.txt) — `lcov.info` coverage data
 
 ---
 
 ## 🧪 Testing
 
-- **32 tests**, all passing
-- **100% line coverage**, 100% function coverage, 88% branch coverage
+- **32 tests** in [`blockchain/test/IdentityVerifier.test.js`](./blockchain/test/IdentityVerifier.test.js), all passing
+- **100% line coverage** for `KYCGatedAuction.sol`, 92.86% overall line coverage
+- **93.75% function coverage**, 81% branch coverage
+
+```
+File                   |  % Stmts | % Branch |  % Funcs |  % Lines |
+-----------------------|----------|----------|----------|----------|
+ IdentityVerifier.sol  |       85 |    79.41 |    88.89 |    84.62 |
+ KYCGatedAuction.sol   |      100 |     82.5 |      100 |      100 |
+-----------------------|----------|----------|----------|----------|
+ All files             |    92.68 |    81.08 |    93.75 |    92.86 |
+```
 
 Run tests:
 ```bash
@@ -184,3 +207,11 @@ cd blockchain
 npx hardhat test        # with gas report
 npx hardhat coverage    # with coverage report
 ```
+
+---
+
+## ⚠️ Known Issues / Limitations
+
+- **Local-only deployment**: The current setup runs on a Hardhat local node.
+- **Single-auction instance**: The `KYCGatedAuction` contract supports one auction at a time.
+- **No IPFS integration**: Documents are stored in MongoDB with AES-256 encryption rather than IPFS. For production, IPFS with encrypted payloads would be preferable.

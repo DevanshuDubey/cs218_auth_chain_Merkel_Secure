@@ -64,10 +64,10 @@ After packing, all three fields share one slot. The EVM performs a **single warm
 ```
 File                   |  % Stmts | % Branch |  % Funcs |  % Lines |
 -----------------------|----------|----------|----------|----------|
- IdentityVerifier.sol  |      100 |    96.43 |      100 |      100 |
+ IdentityVerifier.sol  |       85 |    79.41 |    88.89 |    84.62 |
  KYCGatedAuction.sol   |      100 |     82.5 |      100 |      100 |
 -----------------------|----------|----------|----------|----------|
- All files             |      100 |    88.24 |      100 |      100 |
+ All files             |    92.68 |    81.08 |    93.75 |    92.86 |
 ```
 
 **32 tests total, 0 failing.** Coverage exceeds the 70% line coverage requirement.

@@ -1,0 +1,89 @@
+Compiled 10 Solidity files successfully (evm target: paris).
+
+
+  IdentityVerifier & KYCGatedAuction
+    IdentityVerifier — Happy Path
+      ✔ Should register identity and set status to Pending
+      ✔ Should verify a pending identity
+      ✔ Should revoke a verified identity → status Revoked
+      ✔ Should allow re-registration after revocation
+      ✔ Should add and remove verifier via admin
+      ✔ An unregistered user is not verified
+    IdentityVerifier — Access Control & Reverts
+      ✔ Non-verifier cannot approve identities
+      ✔ Non-verifier cannot revoke identities
+      ✔ Non-admin cannot add verifier
+      ✔ Non-admin cannot remove verifier
+      ✔ Cannot register with empty hash
+      ✔ Cannot register when already pending
+      ✔ Cannot verify an unregistered user
+      ✔ Cannot verify with zero address
+      ✔ Cannot revoke an unregistered user
+      ✔ Cannot add zero-address as verifier
+      ✔ Cannot remove zero-address verifier
+      ✔ Revoking a pending identity also works
+    KYCGatedAuction — Composability & Happy Path
+      ✔ Unverified address bid reverts with 'KYC required'
+      ✔ Verified address can place a bid successfully
+      ✔ Full auction flow: bid, outbid, withdraw refund, end, withdraw proceeds
+    KYCGatedAuction — Reverts & Edge Cases
+      ✔ Bid too low reverts
+      ✔ Bid of zero reverts (bid too low)
+      ✔ Bidding after auction ended reverts
+      ✔ Non-owner cannot end auction
+      ✔ Cannot end auction twice
+      ✔ Cannot withdraw proceeds before auction ends
+      ✔ Cannot withdraw proceeds to zero address
+      ✔ Cannot withdraw proceeds when no funds
+      ✔ Cannot double-withdraw proceeds
+      ✔ Cannot withdraw refund with no pending balance
+      ✔ Non-owner cannot withdraw proceeds
+
+
+  32 passing (396ms)
+
+··············································································································
+|  [32m[1mSolidity and Network Configuration[22m[39m                                                                        │
+·························|·················|···············|·················|································
+|  [36mSolidity: 0.8.28[39m      ·  [36mOptim: true[39m    ·  [36mRuns: 200[39m    ·  [36mviaIR: false[39m   ·     [36mBlock: 60,000,000 gas[39m     │
+·························|·················|···············|·················|································
+|  [32m[1mMethods[22m[39m                                                                                                   │
+·························|·················|···············|·················|················|···············
+|  [32m[1mContracts / Methods[22m[39m   ·  [1mMin[22m            ·  [1mMax[22m          ·  [1mAvg[22m            ·  [1m# calls[22m       ·  [1musd (avg)[22m   │
+·························|·················|···············|·················|················|···············
+|  [1mIdentityVerifier[22m      ·                                                                                   │
+·························|·················|···············|·················|················|···············
+|      addVerifier       ·              [90m-[39m  ·            [90m-[39m  ·         51,402  ·            33  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      registerIdentity  ·         [36m34,470[39m  ·       [31m68,447[39m  ·         65,049  ·            20  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      removeVerifier    ·              [90m-[39m  ·            [90m-[39m  ·         29,461  ·             1  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      revokeIdentity    ·         [36m31,137[39m  ·       [31m31,379[39m  ·         31,234  ·             5  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      verifyIdentity    ·         [36m31,262[39m  ·       [31m31,274[39m  ·         31,264  ·            13  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|  [1mKYCGatedAuction[22m       ·                                                                                   │
+·························|·················|···············|·················|················|···············
+|      endAuction        ·              [90m-[39m  ·            [90m-[39m  ·         51,403  ·             8  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      placeBid          ·         [36m65,545[39m  ·       [31m77,252[39m  ·         75,789  ·             8  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      withdrawProceeds  ·              [90m-[39m  ·            [90m-[39m  ·         37,267  ·             3  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|      withdrawRefund    ·              [90m-[39m  ·            [90m-[39m  ·         32,422  ·             2  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|  [32m[1mDeployments[22m[39m                             ·                                 ·  [1m% of limit[22m    ·              │
+·························|·················|···············|·················|················|···············
+|  [1mIdentityVerifier[22m      ·              [90m-[39m  ·            [90m-[39m  ·        861,424  ·         1.4 %  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|  [1mKYCGatedAuction[22m       ·        [36m651,688[39m  ·      [31m651,700[39m  ·        651,700  ·         1.1 %  ·           [32m[90m-[39m[32m[39m  │
+·························|·················|···············|·················|················|···············
+|  [32m[1mKey[22m[39m                                                                                                       │
+··············································································································
+|  [35m[1m◯[22m[39m  Execution gas for this method does not include intrinsic gas overhead                                  │
+··············································································································
+|  [35m[1m△[22m[39m  Cost was non-zero but below the precision setting for the currency display (see options)               │
+··············································································································
+|  [35mToolchain:[39m  hardhat                                                                                       │
+··············································································································
